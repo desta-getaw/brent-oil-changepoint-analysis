@@ -1,0 +1,65 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.desvenv/
+.venv/
+env/
+venv/
+ENV/
+
+# VSCode and PyCharm project settings
+.idea/
+.vscode/
+
+# Jupyter Notebook checkpoints
+**/.ipynb_checkpoints
+
+# Data files (raw and collected — keep sample files only)
+data/
+data_collected/
+
+# Logs and outputs
+*.log
+*.out
+*.bak
+
+# IPython history
+.profile
+.ipynb_checkpoints
+
+# Environment and config files
+*.env
+.env
+*.DS_Store
+
+# Compiled source
+*.so
+
+# PyMC3 or other cache dirs
+*.nc
+*.h5
+*.pkl
+*.db
+
+# Testing
+coverage/
+htmlcov/
+*.cover
+.tox/
+nosetests.xml
+coverage.xml
+*.test
+
+# Output files
+*.csv
+*.xlsx
+*.json
+*.parquet
+*.feather
+
+# OS files
+Thumbs.db
+.DS_Store
