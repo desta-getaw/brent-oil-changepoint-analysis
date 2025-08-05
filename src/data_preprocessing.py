@@ -13,7 +13,7 @@ def load_data(file_path):
     data = pd.read_csv(file_path, parse_dates=['Date'], dayfirst=True)
     print("Data loaded successfully")
     return data
-
+####
 def check_data(data):
     """
     Check data types and missing values in the Brent oil prices data.
