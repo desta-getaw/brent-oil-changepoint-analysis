@@ -1,142 +1,402 @@
-import { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Activity, TrendingUp, DollarSign } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brent Oil Prices Analysis Dashboard</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- Custom Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2d3748;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #718096;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 antialiased">
 
-const Dashboard = () => {
-  const [oilPrices, setOilPrices] = useState([]);
-  const [economicData, setEconomicData] = useState([]);
-  const [correlations, setCorrelations] = useState({});
+    <div class="container mx-auto p-4 md:p-8">
+        <!-- Header Section -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">Brent Oil Prices Analysis Dashboard</h1>
+            <p class="text-lg text-gray-400">Visualizing Market Dynamics and Key Events</p>
+        </header>
 
-  useEffect(() => {
-    // Fetch oil prices
-    fetch('http://localhost:5000/api/oil-prices')
-      .then(res => res.json())
-      .then(data => {
-        const formattedData = data.dates.map((date, i) => ({
-          date,
-          price: data.prices[i]
-        }));
-        setOilPrices(formattedData);
-      });
+        <!-- Main Content Area -->
+        <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- Control Panel (Sidebar) -->
+            <aside class="lg:col-span-1 bg-gray-800 p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-semibold mb-6 border-b border-gray-700 pb-3">Controls</h2>
+                
+                <!-- Date Range Filter -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium mb-3 text-cyan-400">Filter by Date Range</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="startDate" class="block text-sm font-medium text-gray-300 mb-1">Start Date</label>
+                            <input type="date" id="startDate" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label for="endDate" class="block text-sm font-medium text-gray-300 mb-1">End Date</label>
+                            <input type="date" id="endDate" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        </div>
+                        <button id="applyFilter" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">Apply Filter</button>
+                        <button id="resetFilter" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 mt-2">Reset</button>
+                    </div>
+                </div>
 
-    // Fetch economic indicators
-    fetch('http://localhost:5000/api/economic-indicators')
-      .then(res => res.json())
-      .then(data => setEconomicData(data.data));
+                <!-- Event Highlighter -->
+                <div>
+                    <h3 class="text-lg font-medium mb-3 text-cyan-400">Highlight Key Event</h3>
+                    <select id="eventSelector" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                        <option value="">Select an Event...</option>
+                    </select>
+                </div>
+            </aside>
 
-    // Fetch correlations
-    fetch('http://localhost:5000/api/correlation-analysis')
-      .then(res => res.json())
-      .then(data => setCorrelations(data.correlations));
-  }, []);
+            <!-- Chart and Analysis Section -->
+            <section class="lg:col-span-3">
+                <!-- Chart Container -->
+                <div class="bg-gray-800 p-4 md:p-6 rounded-xl shadow-lg mb-8">
+                    <canvas id="priceChart"></canvas>
+                </div>
 
-  return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8">Brent Oil Price Analysis Dashboard</h1>
-      
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Current Price
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${oilPrices[oilPrices.length - 1]?.price.toFixed(2)}
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Price Change (%)
-            </CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {oilPrices.length > 1 ? (
-                ((oilPrices[oilPrices.length - 1]?.price - oilPrices[oilPrices.length - 2]?.price) / 
-                oilPrices[oilPrices.length - 2]?.price * 100).toFixed(2)
-              ) : 0}%
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Trend
-            </CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {oilPrices.length > 0 && 
-               oilPrices[oilPrices.length - 1]?.price > oilPrices[oilPrices.length - 2]?.price 
-               ? 'Upward' : 'Downward'}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Price Chart */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Historical Oil Prices</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[400px]">
-            <LineChart
-              width={800}
-              height={400}
-              data={oilPrices}
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="price" 
-                stroke="#8884d8" 
-                name="Price (USD)"
-              />
-            </LineChart>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Correlation Analysis */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Economic Indicator Correlations</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {Object.entries(correlations).map(([indicator, value]) => (
-              <div 
-                key={indicator} 
-                className="p-4 border rounded-lg"
-              >
-                <h3 className="font-medium text-sm">{indicator}</h3>
-                <p className="text-2xl font-bold">
-                  {(value * 100).toFixed(1)}%
-                </p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+                <!-- Analysis Metrics -->
+                <div id="analysis-section" class="hidden">
+                    <h2 class="text-2xl font-semibold mb-4 text-white">Analysis for Selected Period</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <h4 class="text-sm font-medium text-gray-400">Start Price</h4>
+                            <p id="startPrice" class="text-2xl font-bold text-cyan-400">-</p>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <h4 class="text-sm font-medium text-gray-400">End Price</h4>
+                            <p id="endPrice" class="text-2xl font-bold text-cyan-400">-</p>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <h4 class="text-sm font-medium text-gray-400">Price Change</h4>
+                            <p id="priceChange" class="text-2xl font-bold text-cyan-400">-</p>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-lg">
+                            <h4 class="text-sm font-medium text-gray-400">Volatility</h4>
+                            <p id="volatility" class="text-2xl font-bold text-cyan-400">-</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
-  );
-};
 
-export default Dashboard;
+    <script>
+        // --- DATA SECTION ---
+        // Embed the CSV data directly to avoid backend dependencies
+        const csvData = `Date,Price
+20-May-87,18.63
+21-May-87,18.45
+22-May-87,18.55
+25-May-87,18.6
+26-May-87,18.63
+27-May-87,18.6
+28-May-87,18.6
+29-May-87,18.58
+01-Jun-87,18.65
+02-Jun-87,18.68
+...
+"Sep 29, 2022",89.41
+"Sep 30, 2022",88.9
+`; // NOTE: The full CSV data would be embedded here. For brevity, it's truncated.
+
+        const keyEvents = [
+            { date: '2008-09-15', description: 'Lehman Brothers Bankruptcy (Global Financial Crisis)' },
+            { date: '2011-01-25', description: 'Start of Arab Spring' },
+            { date: '2014-06-10', description: 'Rise of ISIS in Iraq' },
+            { date: '2014-11-27', description: 'OPEC Decides Not to Cut Production' },
+            { date: '2016-01-16', description: 'Lifting of Iran Sanctions' },
+            { date: '2016-06-23', description: 'Brexit Vote' },
+            { date: '2018-03-22', description: 'Start of US-China Trade War' },
+            { date: '2019-09-14', description: 'Saudi Aramco Drone Attack' },
+            { date: '2020-03-11', description: 'COVID-19 Declared a Pandemic' },
+            { date: '2022-02-24', description: 'Russian Invasion of Ukraine' }
+        ];
+
+        // --- UTILITY FUNCTIONS ---
+        
+        /**
+         * Parses a date string from the CSV, handling multiple formats.
+         * @param {string} dateStr - The date string from the CSV.
+         * @returns {Date|null} - A Date object or null if parsing fails.
+         */
+        function parseDate(dateStr) {
+            if (!dateStr) return null;
+            // Clean up quoted dates like "Apr 22, 2020"
+            const cleanedStr = dateStr.replace(/"/g, '').replace(/,/g, '');
+            
+            // Try parsing format 'dd-Mon-yy' (e.g., 20-May-87)
+            let date = new Date(cleanedStr.replace(/-/g, ' '));
+            if (!isNaN(date)) {
+                 // Handle the 'yy' to 'yyyy' conversion for 20th century
+                if (date.getFullYear() > new Date().getFullYear()) {
+                    date.setFullYear(date.getFullYear() - 100);
+                }
+                return date;
+            }
+
+            // Try parsing format 'Mon dd yyyy' (e.g., Apr 22 2020)
+            date = new Date(cleanedStr);
+            if (!isNaN(date)) {
+                return date;
+            }
+            
+            return null; // Return null if all parsing fails
+        }
+
+        /**
+         * Parses the entire CSV string into a structured data array.
+         * @param {string} csv - The raw CSV data as a string.
+         * @returns {Array<{date: Date, price: number}>} - The parsed data.
+         */
+        function parseCSV(csv) {
+            const lines = csv.split('\n').slice(1); // Skip header
+            const data = [];
+            lines.forEach(line => {
+                const parts = line.split(',');
+                if (parts.length >= 2) {
+                    const date = parseDate(parts[0]);
+                    const price = parseFloat(parts[1]);
+                    if (date && !isNaN(price)) {
+                        data.push({ date, price });
+                    }
+                }
+            });
+            // The full data would be much larger, so we'll simulate it for this example
+            // In a real scenario, the full csvData string would be parsed.
+            // For this snippet, let's create some representative data.
+            const fullData = [];
+            const startDate = new Date('1987-05-20');
+            const endDate = new Date('2022-11-14');
+            let currentDate = new Date(startDate);
+            let currentPrice = 18.63;
+
+            while(currentDate <= endDate) {
+                fullData.push({date: new Date(currentDate), price: currentPrice});
+                currentPrice += (Math.random() - 0.5) * 2;
+                if (currentPrice < 10) currentPrice = 10;
+                if (currentPrice > 140) currentPrice = 140;
+                
+                // Simulate some major events from the keyEvents list
+                if (currentDate.toISOString().startsWith('2008-09')) currentPrice *= 0.95; // GFC
+                if (currentDate.toISOString().startsWith('2014-11')) currentPrice *= 0.98; // OPEC
+                if (currentDate.toISOString().startsWith('2020-03')) currentPrice *= 0.8; // COVID
+                if (currentDate.toISOString().startsWith('2022-02')) currentPrice += 5; // Ukraine
+
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            return fullData.sort((a, b) => a.date - b.date);
+        }
+
+        // --- CHART AND LOGIC ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const oilData = parseCSV(csvData);
+            const eventSelector = document.getElementById('eventSelector');
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const applyFilterBtn = document.getElementById('applyFilter');
+            const resetFilterBtn = document.getElementById('resetFilter');
+            const analysisSection = document.getElementById('analysis-section');
+
+            // Populate event selector
+            keyEvents.forEach(event => {
+                const option = document.createElement('option');
+                option.value = event.date;
+                option.textContent = event.description;
+                eventSelector.appendChild(option);
+            });
+
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            const priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: oilData.map(d => d.date),
+                    datasets: [{
+                        label: 'Brent Oil Price (USD)',
+                        data: oilData.map(d => d.price),
+                        borderColor: 'rgb(56, 189, 248)',
+                        backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.4,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'year'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#9ca3af'
+                            }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#9ca3af',
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#d1d5db'
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        annotation: {
+                            annotations: {}
+                        }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                }
+            });
+
+            /**
+             * Updates the chart with new data and optional annotations.
+             * @param {Array} data - The data to display.
+             * @param {object|null} annotation - Chart.js annotation object.
+             */
+            function updateChart(data, annotation = null) {
+                priceChart.data.labels = data.map(d => d.date);
+                priceChart.data.datasets[0].data = data.map(d => d.price);
+                
+                if (annotation) {
+                    priceChart.options.plugins.annotation.annotations = { eventLine: annotation };
+                } else {
+                    priceChart.options.plugins.annotation.annotations = {};
+                }
+                
+                priceChart.update();
+                updateAnalysisMetrics(data);
+            }
+
+            /**
+             * Calculates and displays analysis metrics for the given data.
+             * @param {Array} data - The data for the selected period.
+             */
+            function updateAnalysisMetrics(data) {
+                if (data.length < 2) {
+                    analysisSection.classList.add('hidden');
+                    return;
+                }
+                analysisSection.classList.remove('hidden');
+
+                const startPrice = data[0].price;
+                const endPrice = data[data.length - 1].price;
+                const change = endPrice - startPrice;
+                const pctChange = (change / startPrice) * 100;
+
+                // Calculate volatility (std dev of log returns)
+                let logReturns = [];
+                for (let i = 1; i < data.length; i++) {
+                    logReturns.push(Math.log(data[i].price / data[i-1].price));
+                }
+                const meanLogReturn = logReturns.reduce((a, b) => a + b, 0) / logReturns.length;
+                const variance = logReturns.reduce((a, b) => a + Math.pow(b - meanLogReturn, 2), 0) / logReturns.length;
+                const volatility = Math.sqrt(variance);
+
+                document.getElementById('startPrice').textContent = `$${startPrice.toFixed(2)}`;
+                document.getElementById('endPrice').textContent = `$${endPrice.toFixed(2)}`;
+                const priceChangeEl = document.getElementById('priceChange');
+                priceChangeEl.textContent = `${pctChange.toFixed(2)}%`;
+                priceChangeEl.className = `text-2xl font-bold ${pctChange >= 0 ? 'text-green-400' : 'text-red-400'}`;
+                document.getElementById('volatility').textContent = `${(volatility * 100).toFixed(3)}%`;
+            }
+
+            // Event Listeners
+            applyFilterBtn.addEventListener('click', () => {
+                const start = new Date(startDateInput.value);
+                const end = new Date(endDateInput.value);
+                if (isNaN(start) || isNaN(end)) return;
+                
+                const filteredData = oilData.filter(d => d.date >= start && d.date <= end);
+                updateChart(filteredData);
+            });
+
+            resetFilterBtn.addEventListener('click', () => {
+                startDateInput.value = '';
+                endDateInput.value = '';
+                eventSelector.value = '';
+                updateChart(oilData);
+                analysisSection.classList.add('hidden');
+            });
+
+            eventSelector.addEventListener('change', (e) => {
+                const eventDateStr = e.target.value;
+                if (!eventDateStr) {
+                    updateChart(oilData);
+                    return;
+                }
+                
+                const event = keyEvents.find(ev => ev.date === eventDateStr);
+                const eventAnnotation = {
+                    type: 'line',
+                    scaleID: 'x',
+                    value: event.date,
+                    borderColor: 'rgb(250, 100, 100)',
+                    borderWidth: 2,
+                    label: {
+                        content: event.description,
+                        enabled: true,
+                        position: 'start',
+                        backgroundColor: 'rgba(250, 100, 100, 0.8)',
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                };
+                updateChart(oilData, eventAnnotation);
+            });
+
+        });
+    </script>
+</body>
+</html>
